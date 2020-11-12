@@ -24,9 +24,11 @@ public class Parser implements IParser {
       .filter(rule -> rule.getVariable().equals(startVariable))
       .collect(Collectors.toCollection(ArrayList::new));
 
-    for (Rule rule : startingVariableRules) {
-      Iterator<Symbol> ws = rule.getExpansion().iterator();
-      System.out.println(ww.conte);
+    for (Rule startingRule : startingVariableRules) {
+      Iterator<Symbol> ws = startingRule.getExpansion().iterator();
+      while (ws.hasNext()) {
+
+      }
     }
 
     while (s.hasNext()) {
