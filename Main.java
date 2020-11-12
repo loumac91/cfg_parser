@@ -31,8 +31,9 @@ class Main {
 
 		// Below is the kind of code you might want to write to test your parser
 
-		ContextFreeGrammar cfg = MyGrammar.makeGrammar();
-		Word testString = new Word("x+x");
+    ContextFreeGrammar cfg = MyGrammar.makeGrammar();
+    boolean x = cfg.isInChomskyNormalForm();
+		Word testString = new Word("x + x");
 
 		// this should print true!
 		System.out.println(parser.isInLanguage(cfg, testString));
