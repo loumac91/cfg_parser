@@ -10,3 +10,5 @@ C -> 1 | 0 | x
 P -> +
 M -> *
 N -> -
+
+S -> EG -> xG -> xPT -> x+T -> x+x = 2n - 1 where n is 3
