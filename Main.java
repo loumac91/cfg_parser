@@ -36,9 +36,6 @@ class Main {
 
     // NOTE - I've commented out this case and placed it at the top of the true cases below
     // Word testString = new Word("x + x");
-   
-    System.out.println("Test case: 1+0 - SHOULD BE TRUE");
-    System.out.println(parser.isInLanguage(cfg, new Word("1+0")));
 
     ArrayList<String> trueCases = new ArrayList<>(Arrays.asList(
       "x+x",
@@ -62,7 +59,7 @@ class Main {
 
     ArrayList<String> falseCases = new ArrayList<>(Arrays.asList(
       "01",
-      "*-*",
+      "*-*"
       // "1*-0*-1+0*-1",
       // "0+-1*-0+1*1",
       // "1*0+--1+0*1"
