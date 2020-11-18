@@ -1,6 +1,6 @@
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,19 +36,15 @@ public class Parser implements IParser {
     int derivations = 2 * n - 1;
 
     Variable current = cfg.getStartVariable();
-    LinkedList<Word> previousExpansions = new LinkedList<>(){{
-      push(new Word(current.toString())); 
+    HashSet<Word> previousExpansions = new HashSet<>(){{
+      add(new Word(current.toString())); 
     }};
 
     int i = 1;
     while (i <= derivations) { // On my computer, things really start to grind to a halt after the 10th iteration, and we start running into memory issues
-      LinkedList<Word> currentExpansions = new LinkedList<>();
+      HashSet<Word> currentExpansions = new HashSet<>();
       // Iterate through each previous expansions
-      while (true) {
-        Word word = previousExpansions.peek();
-        if (word == null) break;
-
-        word = previousExpansions.pop();
+      for (Word word : previousExpansions) {
         // If the whole derivation is a word, then go to next derivation
         if (word.isTerminal()) {
           continue;
@@ -70,7 +66,7 @@ public class Parser implements IParser {
           for (Rule r : currentRules) {
             Word replaced = word.replace(replaceIndex, r.getExpansion());
             if (replaced.equals(cleaned)) return true; // If we get out result, return early
-            currentExpansions.push(replaced);
+            currentExpansions.add(replaced);
           }
 
           replaceIndex++;
