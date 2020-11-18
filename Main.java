@@ -32,11 +32,31 @@ class Main {
 		// Below is the kind of code you might want to write to test your parser
 
     ContextFreeGrammar cfg = MyGrammar.makeGrammar();
-    boolean x = cfg.isInChomskyNormalForm();
-		Word testString = new Word("x + x");
-
+    Word testString = new Word("x + x");
+    
 		// this should print true!
-		System.out.println(parser.isInLanguage(cfg, testString));
+    // System.out.println(parser.isInLanguage(cfg, testString));
+    
+    System.out.println("Test case: 1+0 - SHOULD BE TRUE");
+    // System.out.println(parser.isInLanguage(cfg, new Word("1+0")));
+
+    System.out.println("Test case: 01 - SHOULD BE FALSE");
+    System.out.println(parser.isInLanguage(cfg, new Word("01")));
+
+    // System.out.println("Test case: *-* - SHOULD BE FALSE");
+    // System.out.println(parser.isInLanguage(cfg, new Word("*-*")));
+
+    // System.out.println("Test case: 1*-0*−1+0*−1");
+    // System.out.println(parser.isInLanguage(cfg, new Word("1*-0*−1+0*−1")));
+
+    // System.out.println("Test case: 0+−1*−0+1*1");
+    // System.out.println(parser.isInLanguage(cfg, new Word("0+−1*−0+1*1")));
+
+    // System.out.println("Test case: 1*0+−−1+0*1");
+    // System.out.println(parser.isInLanguage(cfg, new Word("1*0+−−1+0*1")));
+
+    // System.out.println("Test case: 1*0+0−1+1*0+−0");
+    // System.out.println(parser.isInLanguage(cfg, new Word("1*0+0−1+1*0+−0")));
 	}
 
 
