@@ -33,18 +33,18 @@ class Main {
 		// Below is the kind of code you might want to write to test your parser
 
     ContextFreeGrammar cfg = MyGrammar.makeGrammar();
-    Word testString = new Word("x + x");
-    
-		// this should print true!
-    // System.out.println(parser.isInLanguage(cfg, testString));
-    
+
+    // NOTE - I've commented out this case and placed it at the top of the true cases below
+    // Word testString = new Word("x + x");
+   
     System.out.println("Test case: 1+0 - SHOULD BE TRUE");
     System.out.println(parser.isInLanguage(cfg, new Word("1+0")));
 
     ArrayList<String> trueCases = new ArrayList<>(Arrays.asList(
+      "x+x",
+      "1+0",
       // "x*1+-1*x+-1+x",
       "-0*1",
-      // "0-0",
       // "x*x+1+0+x*-x*0",
       // "-x*-0*-1",
       // "-0*1*0+1",
@@ -56,31 +56,23 @@ class Main {
     ));
 
     for (String testCase : trueCases) {
-      System.out.println("Test case: " + testCase);
+      System.out.println("Test case should be TRUE: " + testCase);
       System.out.println(parser.isInLanguage(cfg, new Word(testCase)));
     }
 
+    ArrayList<String> falseCases = new ArrayList<>(Arrays.asList(
+      "01",
+      "*-*",
+      // "1*-0*-1+0*-1",
+      // "0+-1*-0+1*1",
+      // "1*0+--1+0*1"
+    ));
 
-    System.out.println("Test case: 01 - SHOULD BE FALSE");
-    System.out.println(parser.isInLanguage(cfg, new Word("01")));
-
-    // System.out.println("Test case: *-* - SHOULD BE FALSE");
-    // System.out.println(parser.isInLanguage(cfg, new Word("*-*")));
-
-    // System.out.println("Test case: 1*-0*−1+0*−1");
-    // System.out.println(parser.isInLanguage(cfg, new Word("1*-0*−1+0*−1")));
-
-    // System.out.println("Test case: 0+−1*−0+1*1");
-    // System.out.println(parser.isInLanguage(cfg, new Word("0+−1*−0+1*1")));
-
-    // System.out.println("Test case: 1*0+−−1+0*1");
-    // System.out.println(parser.isInLanguage(cfg, new Word("1*0+−−1+0*1")));
-
-    // System.out.println("Test case: 1*0+0−1+1*0+−0");
-    // System.out.println(parser.isInLanguage(cfg, new Word("1*0+0−1+1*0+−0")));
+    for (String testCase : falseCases) {
+      System.out.println("Test case should be FALSE: " + testCase);
+      System.out.println(parser.isInLanguage(cfg, new Word(testCase)));
+    }
 	}
-
-
 
 	/* ******************************************************************************************************
 	 * You should not need to edit anything below this line.
