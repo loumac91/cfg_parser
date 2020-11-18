@@ -9,7 +9,7 @@ public class MyGrammar {
     // Terminals - NOTE, some of these seem to differ slightly to data page
     Terminal plus = new Terminal('+'); // +
     Terminal multiply = new Terminal('*'); // ∗
-    Terminal negate = new Terminal('−'); // −
+    Terminal negate = new Terminal('-'); // −
     Terminal one = new Terminal('1');
     Terminal zero = new Terminal('0');
     Terminal xT = new Terminal('x'); // 𝑥

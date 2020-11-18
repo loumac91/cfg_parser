@@ -8,6 +8,7 @@
 
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.ArrayList;
 
 import computation.contextfreegrammar.*;
 import computation.parser.*;
@@ -38,7 +39,27 @@ class Main {
     // System.out.println(parser.isInLanguage(cfg, testString));
     
     System.out.println("Test case: 1+0 - SHOULD BE TRUE");
-    // System.out.println(parser.isInLanguage(cfg, new Word("1+0")));
+    System.out.println(parser.isInLanguage(cfg, new Word("1+0")));
+
+    ArrayList<String> trueCases = new ArrayList<>(Arrays.asList(
+      // "x*1+-1*x+-1+x",
+      "-0*1",
+      // "0-0",
+      // "x*x+1+0+x*-x*0",
+      // "-x*-0*-1",
+      // "-0*1*0+1",
+      // "-1+x+0*0*-1*0+-x",
+      // "x+x+x+-1+1+1",
+      // "1*-1+0*-x+0",
+      // "x+x*x+-1+-x*0*0",
+      "x*x*1+1"
+    ));
+
+    for (String testCase : trueCases) {
+      System.out.println("Test case: " + testCase);
+      System.out.println(parser.isInLanguage(cfg, new Word(testCase)));
+    }
+
 
     System.out.println("Test case: 01 - SHOULD BE FALSE");
     System.out.println(parser.isInLanguage(cfg, new Word("01")));

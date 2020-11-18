@@ -2,6 +2,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,24 +40,29 @@ public class Parser implements IParser {
     int derivations = 2 * n - 1;
 
     // derivationIndex, hashset of derivations
-
-
     Variable current = cfg.getStartVariable();
-    LinkedHashMap<Integer, LinkedHashSet<Word>> derivationMap = new LinkedHashMap<Integer, LinkedHashSet<Word>>() {{
-      put(0, new LinkedHashSet<Word>() {{ 
-        add(new Word(current.toString())); 
-      }});
+    ArrayList<Word> previousExpansions = new ArrayList<>(){{
+      add(new Word(current.toString())); 
     }};
 
-    int i = 0;
+    // LinkedHashMap<Integer, LinkedHashSet<Word>> derivationMap = new LinkedHashMap<Integer, LinkedHashSet<Word>>() {{
+    //   put(0, new LinkedHashSet<Word>() {{ 
+    //     add(new Word(current.toString())); 
+    //   }});
+    // }};
+
+    int i = 1;
     while (i <= derivations) {
-      LinkedHashSet<Word> newWords = new LinkedHashSet();
+      ArrayList<Word> currentExpansions = new ArrayList<>();
       // For previous index, get all of the derived words
-      LinkedHashSet<Word> previousWords = derivationMap.get(i++);
+      // LinkedHashSet<Word> previousWords = derivationMap.get(i++);
       // Get all of the derivations of the words
-      for (Word word : previousWords) {
+      for (Word word : previousExpansions) {
+        if (i == 5) {
+          String x = "";
+        }
         if (word.isTerminal()) {
-          newWords.add(word);
+          // currentExpansions.add(word);
           continue;
         }
 
@@ -66,22 +72,31 @@ public class Parser implements IParser {
         Iterator<Symbol> symbols = word.iterator();
         while (symbols.hasNext()) { 
           Symbol currentSymbol = symbols.next();
+          if (currentSymbol.isTerminal()) {
+            // currentExpansions.add(word);
+            k++;
+            continue;
+          }
           List<Rule> currentRules = ruleMap.getOrDefault(currentSymbol, new ArrayList<Rule>());
           for (Rule r : currentRules) {
             // replace current symbol with expansion
             Word replaced = word.replace(k, r.getExpansion());
-            newWords.add(replaced);
+
+            currentExpansions.add(replaced);
           }
           k++;
         }
       }
 
-      derivationMap.put(i, newWords);
+      // derivationMap.put(i, newWords);
+      previousExpansions = currentExpansions;
+      i++;
     }
 
-    return derivationMap
-      .get(--i)
-      .contains(cleaned);
+    // return derivationMap
+    //   .get(--i)
+    //   .contains(cleaned);
+    return previousExpansions.contains(cleaned);
   }
 
   public ParseTreeNode generateParseTree(ContextFreeGrammar cfg, Word w) {
