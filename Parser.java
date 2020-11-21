@@ -24,63 +24,68 @@ public class Parser implements IParser {
     // i = 1, [ EG | TH | NC | 1 | 0 | x ]
     // i = 2, [ EEG, THG, NCG, 1G, 0G, xG, EPT, TTH, NCH, 1H, 0H, 0x ... etc ]
 
+    // 1. Group all the expansions under each symbol ".get(symbol)" all given expansions
     List<Rule> rules = cfg.getRules();
-    Map<Symbol, List<Rule>> ruleMap = rules
+    Map<Symbol, List<Word>> expansionsMap = rules
       .stream()
-      .collect(Collectors.groupingBy(Rule::getVariable));
-
-    Variable current = cfg.getStartVariable();
-    HashSet<Word> previousExpansions = new HashSet<>(){{
-      add(new Word(current)); 
+      .collect(Collectors.groupingBy(Rule::getVariable, 
+               Collectors.mapping(Rule::getExpansion, Collectors.toList())));
+    
+    // 2. Construct set of derivations to compute - starting with grammars starting variable
+    HashSet<Word> previousDerivations = new HashSet<>(){{
+      add(new Word(cfg.getStartVariable()));
     }};
 
+    // 3. Compute number of derivations
     int i = 1;
     int n = w.length();
     int derivations = 2 * n - 1;
-    // On my computer, things really start to grind to a halt after the 14th iteration, and we start running into memory issues
-    
+
     try {
+      // 4. Attempt to iterate up to 2 * n - 1 derivations
       while (i <= derivations) {
-        HashSet<Word> currentExpansions = new HashSet<>();
-        // Iterate through each previous expansions
-        for (Word word : previousExpansions) {
-          // If the whole derivation is a word, then go to next derivation
-          if (word.isTerminal()) {
+        HashSet<Word> currentDerivations = new HashSet<>();
+        // 5. Iterate through each previous expansions (skip terminals)
+        for (Word derivation : previousDerivations) {
+          if (derivation.isTerminal()) {
             continue;
           }
   
-          // Iterate through each symbol of the derivation
+          // 6. Iterate through each symbol of the derivation (skip terminals)
           int replaceIndex = 0;
-          Iterator<Symbol> symbols = word.iterator();
+          Iterator<Symbol> symbols = derivation.iterator();
           while (symbols.hasNext()) { 
             Symbol currentSymbol = symbols.next();
-            // If the symbol is a terminal, then skip
             if (currentSymbol.isTerminal()) {
               replaceIndex++;
               continue;
             }
   
-            // Get all the expansions for the symbol and apply them
-            List<Rule> currentRules = ruleMap.getOrDefault(currentSymbol, new ArrayList<Rule>());
-            for (Rule r : currentRules) {
-              Word expansion = r.getExpansion();
-              Word replaced = word.replace(replaceIndex, expansion);
-
+            // 7. Get all the expansions for the symbol and replace each expansion in the current derivation
+            // - If this produces the word we are looking for, return true
+            // - else add the product to a collection of derivations that represent i + 1
+            List<Word> currentExpansions = expansionsMap.getOrDefault(currentSymbol, new ArrayList<Word>());
+            for (Word expansion : currentExpansions) {
+              Word replaced = derivation.replace(replaceIndex, expansion);
               if (replaced.equals(w)) {
-                // If we find a match, be nice and return early
                 return true;
               }
-              currentExpansions.add(replaced);
+
+              currentDerivations.add(replaced);
             }
   
             replaceIndex++;
           }
         }
   
-        previousExpansions = currentExpansions;
+        // 8. Copy all produced derivations to previous derivations collections to compute on next loop
+        previousDerivations = currentDerivations;
         i++;
       }
     } catch (OutOfMemoryError e) {
+      // On my computer, I would usually hit the ~14th iteration before this would occur
+      // The total number of derivations starts to explode after 10 or so, consequently
+      // out of memory exception is inevitable
       System.out.println("Out of Memory exception: " + e.getMessage());
       System.out.println("The algorithm got the " + i + "th iteration before giving up :(");
     }
