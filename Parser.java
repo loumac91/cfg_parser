@@ -17,11 +17,10 @@ public class Parser implements IParser {
 
   public boolean isInLanguage(ContextFreeGrammar cfg, Word w) {
 
-    expansionsMap = cfg
-      .getRules()
-      .stream()
-      .collect(Collectors.groupingBy(Rule::getVariable, 
-               Collectors.mapping(Rule::getExpansion, Collectors.toList())));
+    // Set static property expansionsMap:
+    // This groups all the expansions under each rule symbol
+    // which allows simple lookup via ".get(symbol)"
+    setExpansionMap(cfg);
 
     if (!isValidInput(cfg, w)) return false;
 
@@ -34,11 +33,10 @@ public class Parser implements IParser {
 
   public ParseTreeNode generateParseTree(ContextFreeGrammar cfg, Word w) {
 
-    expansionsMap = cfg
-      .getRules()
-      .stream()
-      .collect(Collectors.groupingBy(Rule::getVariable, 
-              Collectors.mapping(Rule::getExpansion, Collectors.toList())));
+    // Set static property expansionsMap:
+    // This groups all the expansions under each rule symbol
+    // which allows simple lookup via ".get(symbol)"
+    setExpansionMap(cfg);
 
     if (!isValidInput(cfg, w)) return null;
 
@@ -46,29 +44,32 @@ public class Parser implements IParser {
 
     if (computedDerivations == null) return null;
 
-
+    // 1. Pick any given node in the list of all possible derivation paths
     Node node = computedDerivations.get(0);
     
-    
-    List<Node> treeNodes = new ArrayList<Node>();
+    // 2. Walk back up the tree from end to start, adding each node to a list
+    // this represents the derivation path
+    List<Node> derivationNodes = new ArrayList<Node>();
     while(true) {
-      treeNodes.add(node);
+      derivationNodes.add(node);
       Node parent = node.getParent();
       node = parent;
       if (node.getParentSymbol() == null) break;
     }   
   
+    // 3. Recursively determine the children of the cfgs start variable
     int i = 0;
     ParseTreeNode[] firstChildren = new ParseTreeNode[2];
     Iterator<Symbol> firstChildIterator = node.getWord().iterator();
     while (firstChildIterator.hasNext()) {
       Symbol currentSymbol = firstChildIterator.next();
-      Node nextChild = getLeftMostChild(currentSymbol, treeNodes);
-      treeNodes.remove(nextChild);
-      ParseTreeNode[] childrenOfFirstChild = recurseChildren(nextChild, treeNodes);
+      Node nextChild = getLeftMostChild(currentSymbol, derivationNodes);
+      derivationNodes.remove(nextChild); // Remove the node so that its not picked up again by above method
+      ParseTreeNode[] childrenOfFirstChild = recurseChildren(nextChild, derivationNodes);
       firstChildren[i++] = new ParseTreeNode(currentSymbol, resolveChildArray(childrenOfFirstChild));
     }
 
+    // 4. Create the final top level parse tree node and return
     ParseTreeNode result = new ParseTreeNode(cfg.getStartVariable(), firstChildren);
 
     return result;
@@ -86,7 +87,16 @@ public class Parser implements IParser {
     return cfg.isInChomskyNormalForm();
   }
 
+  private void setExpansionMap(ContextFreeGrammar cfg) {
+    expansionsMap = cfg
+      .getRules()
+      .stream()
+      .collect(Collectors.groupingBy(Rule::getVariable, 
+               Collectors.mapping(Rule::getExpansion, Collectors.toList())));
+  }
+
   // region Algorithm #1
+
   private List<Node> getComputedDerivations(ContextFreeGrammar cfg, Word w) {
 
     // On an input w for Grammar G
@@ -178,13 +188,20 @@ public class Parser implements IParser {
 
   // region generateParseTrees
   
-  private Node getLeftMostChild(Symbol parentSymbol, List<Node> treeNodes) {
+  private Node getLeftMostChild(Symbol parentSymbol, List<Node> derivationNodes) {
 
-    List<Node> childNodes = treeNodes
+    List<Node> childNodes = derivationNodes
       .stream()
       .filter(n -> n.getParentSymbol().equals(parentSymbol))
       .collect(Collectors.toList());
     
+    // Replacement index represents the index of where the substitution occurs between parent and child
+    // Depth refers to the number of recursions made to compute the derivation
+    // The children of the child are sorted here by both these properties to always return the first
+    // occurrence of a given symbol. We do this as the outer algorithm is working from top level down to 
+    // bottom level - and there can of course be multiple children within the derivation tree with the same
+    // symbol
+
     Collections.sort(childNodes, new Comparator<Node>(){
       public int compare(Node n1, Node n2) {
         Integer a = n1.getReplacementIndex() + n1.getDepth();
@@ -196,10 +213,11 @@ public class Parser implements IParser {
     return childNodes.get(0);
   }
 
-  private ParseTreeNode[] recurseChildren(Node parent, List<Node> treeNodes) {
+  private ParseTreeNode[] recurseChildren(Node parent, List<Node> derivationNodes) {
 
     ParseTreeNode[] children = new ParseTreeNode[2];
-    if (treeNodes.size() == 0) return children;
+    // Base condition is to recurse until no derivation nodes remain
+    if (derivationNodes.size() == 0) return children;
     
     int i = 0;
     Iterator<Symbol> symbolIterator = parent.getExpansion().iterator();
@@ -210,12 +228,12 @@ public class Parser implements IParser {
         continue;
       }
       
-      Node nextChild = getLeftMostChild(currentSymbol, treeNodes);
-      treeNodes.remove(nextChild);
-      ParseTreeNode[] childrenOfChild = resolveChildArray(recurseChildren(nextChild, treeNodes));
-      if (childrenOfChild[0] != null) {
+      Node nextChild = getLeftMostChild(currentSymbol, derivationNodes);
+      derivationNodes.remove(nextChild);
+      ParseTreeNode[] childrenOfChild = resolveChildArray(recurseChildren(nextChild, derivationNodes));
+      if (childrenOfChild[0] != null) { // child of parent has children
         children[i++] = new ParseTreeNode(currentSymbol, childrenOfChild);
-      } else {
+      } else { // child of parent has no children
         children[i++] = new ParseTreeNode(currentSymbol, new ParseTreeNode(nextChild.getExpansion().get(0)));
       }      
     }
@@ -287,16 +305,8 @@ public class Parser implements IParser {
       return this.expansion;
     }
 
-    public void addChild(Word childWord) {
-      this.children.add(new Node(this, childWord, depth + 1));
-    }
-
     public void addChild(Node childNode) {
       this.children.add(childNode);
-    }
-
-    public void addChildren(List<Node> childNodes) {
-      this.children.addAll(childNodes);
     }
   }
 }

@@ -41,6 +41,7 @@ class Main {
     // IParser pp = new CYKParser();
 
     ParseTreeNode p = parser.generateParseTree(cfg, new Word("x+x+x"));
+    p.print();
     // ParseTreeNode pxParseTreeNode = parser.generateParseTree(cfg, new Word("x+x+x"));
     // p.print();
     
