@@ -34,69 +34,73 @@ class Main {
 
     ContextFreeGrammar cfg = MyGrammar.makeGrammar();
 
-    // NOTE - I've commented out this case and placed it at the top of the true cases below
-    // Word testString = new Word("x + x");
+    // FALSE Simple cases
+    new ArrayList<>(Arrays.asList(
+      Word.emptyWord,
+      new Word(""),
+      new Word(" ")
+    )).forEach(c -> printCase(cfg, c, false));
 
+    // TRUE Simple cases
+    new ArrayList<>(Arrays.asList(
+      new Word("x"),
+      new Word("1"),
+      new Word("0"),
+      new Word("-1"),
+      new Word("-x"),
+      new Word("-0")
+    )).forEach(c -> printCase(cfg, c, true));
 
-    // IParser pp = new CYKParser();
+    // TRUE complexer cases
+    new ArrayList<>(Arrays.asList(
+      new Word("x+x"),
+      new Word("x+x+x"),
+      new Word("1+0"),
+      new Word("x*1+-1*x+-1+x"),
+      new Word("-0*1"),
+      new Word("x*x+1+0+x*-x*0"),
+      new Word("-x*-0*-1"),
+      new Word("-0*1*0+1"),
+      new Word("-1+x+0*0*-1*0+-x"),
+      new Word("x+x+x+-1+1+1"),
+      new Word("1*-1+0*-x+0"),
+      new Word("x+x*x+-1+-x*0*0"),
+      new Word("x*x*1+1"),
+      new Word("x*1*1*0*-0+0+0"),
+      new Word("-1"),
+      new Word("0"),
+      new Word("1"),
+      new Word("0*-x*1"),
+      new Word("-x+0+-1*1+0"),
+      new Word("x*1+0*1+x"),
+      new Word("0*0*0*-0*1"),
+      new Word("-0+-x+x+0"),
+      new Word("0+1"),
+      new Word("1+1+x*0+x+x+-x+0")
+    )).forEach(c -> printCase(cfg, c, true));
 
-    ParseTreeNode p = parser.generateParseTree(cfg, new Word("x+x+x"));
-    p.print();
-    // ParseTreeNode pxParseTreeNode = parser.generateParseTree(cfg, new Word("x+x+x"));
-    // p.print();
-    
-    ArrayList<String> trueCases = new ArrayList<>(Arrays.asList(
-      "x+x",
-      "x+x+x",
-      "1+0",
-      "x*1+-1*x+-1+x",
-      "-0*1",
-      "x*x+1+0+x*-x*0",
-      "-x*-0*-1",
-      "-0*1*0+1",
-      "-1+x+0*0*-1*0+-x",
-      "x+x+x+-1+1+1",
-      "1*-1+0*-x+0",
-      "x+x*x+-1+-x*0*0",
-      "x*x*1+1",
-      "x*1*1*0*-0+0+0",
-      "-1",
-      "0",
-      "1",
-      "0*-x*1",
-      "-x+0+-1*1+0",
-      "x*1+0*1+x",
-      "0*0*0*-0*1",
-      "-0+-x+x+0",
-      "0+1",
-      "1+1+x*0+x+x+-x+0"
-    ));
-
-    for (String testCase : trueCases) {
-      System.out.println("*************************************");
-      System.out.println("Test case should be TRUE: " + testCase);
-      System.out.println(parser.isInLanguage(cfg, new Word(testCase)));
-      System.out.println("*************************************");
-    }
-
-    ArrayList<String> falseCases = new ArrayList<>(Arrays.asList(
-      "01",
-      "*-*",
-      "1*0+--1+0*1",
-      "-0+00+1*1*-1+0",
-      "x+0+x*x*0*-01",
-      "x*1+x*-0*x*x+x*x11",
-      "1+-1-",
-      "0*0+0+-1+1x"
-    ));
-
-    for (String testCase : falseCases) {
-      System.out.println("*************************************");
-      System.out.println("Test case should be FALSE: " + testCase);
-      System.out.println(parser.isInLanguage(cfg, new Word(testCase)));
-      System.out.println("*************************************");
-    }
+    // FALSE complexer cases
+    new ArrayList<>(Arrays.asList(
+      new Word("01"),
+      new Word("*-*"),
+      new Word("1*0+--1+0*1"),
+      new Word("-0+00+1*1*-1+0"),
+      new Word("x+0+x*x*0*-01"),
+      new Word("x*1+x*-0*x*x+x*x11"),
+      new Word("1+-1-"),
+      new Word("0*0+0+-1+1x")
+    )).forEach(c -> printCase(cfg, c, false));
 	}
+
+  private static void printCase(ContextFreeGrammar cfg, Word testCase, Boolean expectedResult) {
+
+    Boolean result = parser.isInLanguage(cfg, testCase);
+    assert(result.equals(expectedResult));
+    System.out.println("CASE: " + testCase);
+    System.out.println("RESULT: " + result);
+    System.out.println("TREE: " + parser.generateParseTree(cfg, testCase).toString());
+    System.out.println("*************************************");
+  }
 
 	/* ******************************************************************************************************
 	 * You should not need to edit anything below this line.

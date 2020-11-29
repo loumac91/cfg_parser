@@ -16,19 +16,7 @@ public class Parser implements IParser {
   private static Map<Symbol, List<Word>> expansionsMap;
 
   public boolean isInLanguage(ContextFreeGrammar cfg, Word w) {
-
-    // Set static property expansionsMap:
-    // This groups all the expansions under each rule symbol
-    // which allows simple lookup via ".get(symbol)"
-    setExpansionMap(cfg);
-
-    if (!isValidInput(cfg, w)) return false;
-
-    List<Node> computedDerivations = getComputedDerivations(cfg, w);
-    
-    return 
-      computedDerivations != null
-      && computedDerivations.size() > 0;
+    return generateParseTree(cfg, w) != null;
   }
 
   public ParseTreeNode generateParseTree(ContextFreeGrammar cfg, Word w) {
@@ -83,6 +71,8 @@ public class Parser implements IParser {
         .stream()
         .anyMatch(e -> e.equals(w));
     }
+
+    if (w.count(new Terminal(' ')) == w.length()) return false;
 
     return cfg.isInChomskyNormalForm();
   }
