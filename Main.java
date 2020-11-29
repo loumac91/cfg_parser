@@ -37,37 +37,63 @@ class Main {
     // NOTE - I've commented out this case and placed it at the top of the true cases below
     // Word testString = new Word("x + x");
 
+
+    // IParser pp = new CYKParser();
+
+    ParseTreeNode p = parser.generateParseTree(cfg, new Word("x+x+x"));
+    // ParseTreeNode pxParseTreeNode = parser.generateParseTree(cfg, new Word("x+x+x"));
+    // p.print();
+    
     ArrayList<String> trueCases = new ArrayList<>(Arrays.asList(
       "x+x",
+      "x+x+x",
       "1+0",
-      // "x*1+-1*x+-1+x",
+      "x*1+-1*x+-1+x",
       "-0*1",
-      // "x*x+1+0+x*-x*0",
-      // "-x*-0*-1",
-      // "-0*1*0+1",
-      // "-1+x+0*0*-1*0+-x",
-      // "x+x+x+-1+1+1",
-      // "1*-1+0*-x+0",
-      // "x+x*x+-1+-x*0*0",
-      "x*x*1+1"
+      "x*x+1+0+x*-x*0",
+      "-x*-0*-1",
+      "-0*1*0+1",
+      "-1+x+0*0*-1*0+-x",
+      "x+x+x+-1+1+1",
+      "1*-1+0*-x+0",
+      "x+x*x+-1+-x*0*0",
+      "x*x*1+1",
+      "x*1*1*0*-0+0+0",
+      "-1",
+      "0",
+      "1",
+      "0*-x*1",
+      "-x+0+-1*1+0",
+      "x*1+0*1+x",
+      "0*0*0*-0*1",
+      "-0+-x+x+0",
+      "0+1",
+      "1+1+x*0+x+x+-x+0"
     ));
 
     for (String testCase : trueCases) {
+      System.out.println("*************************************");
       System.out.println("Test case should be TRUE: " + testCase);
       System.out.println(parser.isInLanguage(cfg, new Word(testCase)));
+      System.out.println("*************************************");
     }
 
     ArrayList<String> falseCases = new ArrayList<>(Arrays.asList(
       "01",
-      "*-*"
-      // "1*-0*-1+0*-1",
-      // "0+-1*-0+1*1",
-      // "1*0+--1+0*1"
+      "*-*",
+      "1*0+--1+0*1",
+      "-0+00+1*1*-1+0",
+      "x+0+x*x*0*-01",
+      "x*1+x*-0*x*x+x*x11",
+      "1+-1-",
+      "0*0+0+-1+1x"
     ));
 
     for (String testCase : falseCases) {
+      System.out.println("*************************************");
       System.out.println("Test case should be FALSE: " + testCase);
       System.out.println(parser.isInLanguage(cfg, new Word(testCase)));
+      System.out.println("*************************************");
     }
 	}
 
@@ -291,7 +317,56 @@ class Main {
 		System.out.println("Parse tree for string " + test);
 		System.out.println("Expected result:\n");
 
-		ParseTreeNode tree = new ParseTreeNode(new Variable("A0"), new ParseTreeNode(new Variable('Z'), new ParseTreeNode(new Terminal('0'))),new ParseTreeNode(new Variable('B'), new ParseTreeNode(new Variable('A'), new ParseTreeNode(new Variable('Z'), new ParseTreeNode(new Terminal('0'))), new ParseTreeNode(new Variable('Y'), new ParseTreeNode(new Terminal('1')))), new ParseTreeNode(new Variable('Y'), new ParseTreeNode(new Terminal('1')))));
+
+    // ParseTreeNode pt1 = new ParseTreeNode(new Variable('Z'), new ParseTreeNode(new Terminal('0')));
+
+    // ParseTreeNode n11 = new ParseTreeNode(new Variable('Z'), new ParseTreeNode(new Terminal('0')));
+    // ParseTreeNode n12 = new ParseTreeNode(new Variable('Y'), new ParseTreeNode(new Terminal('1')));
+    // ParseTreeNode n1 = new ParseTreeNode(new Variable('A'), n11, n12);
+
+    // ParseTreeNode n2 = new ParseTreeNode(new Variable('Y'));
+    // ParseTreeNode n3 = new ParseTreeNode(new Terminal('1'));
+
+    // ParseTreeNode tree = new ParseTreeNode(new Variable("A0"), pt1, new ParseTreeNode(new Variable('B'), n1, n2, n3));
+    
+        // Not yet implemented
+
+    // ParseTreeNode parseTreeNode = new ParseTreeNode(symbol);
+    
+    ParseTreeNode tree = 
+      new ParseTreeNode(
+        new Variable("A0"), 
+        new ParseTreeNode(
+          new Variable('Z'), 
+          new ParseTreeNode(
+            new Terminal('0')
+          )
+        ),
+        new ParseTreeNode(
+          new Variable('B'), 
+          new ParseTreeNode(
+            new Variable('A'), 
+            new ParseTreeNode(
+              new Variable('Z'), 
+              new ParseTreeNode(
+                new Terminal('0')
+              )
+            ), 
+            new ParseTreeNode(
+              new Variable('Y'), 
+              new ParseTreeNode(
+                new Terminal('1')
+              )
+            )
+          ), 
+          new ParseTreeNode(
+            new Variable('Y'), 
+            new ParseTreeNode(
+              new Terminal('1')
+            )
+          )
+        )
+      );
 		tree.print();
 
 		ParseTreeNode result = parser.generateParseTree(cfg, test);
