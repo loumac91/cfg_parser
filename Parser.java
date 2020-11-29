@@ -36,11 +36,12 @@ public class Parser implements IParser {
     // 1. Pick any given node in the list of all possible derivation paths
     Node node = computedDerivations.get(0);
 
+    // 2. If length of word is 1, its pretty simple to work out tree...
     if (w.length() == 1) {
       return new ParseTreeNode(cfg.getStartVariable(), new ParseTreeNode(node.getExpansion().get(0)));
     }
     
-    // 2. Walk back up the tree from end to start, adding each node to a list
+    // 3. Walk back up the tree from end to start, adding each node to a list
     // this represents the derivation path
     List<Node> derivationNodes = new ArrayList<Node>();
     while(true) {
@@ -50,7 +51,7 @@ public class Parser implements IParser {
       if (node.getParentSymbol() == null) break;
     }   
   
-    // 3. Recursively determine the children of the cfgs start variable
+    // 4. Recursively determine the children of the cfgs start variable
     int i = 0;
     ParseTreeNode[] firstChildren = new ParseTreeNode[2];
     Iterator<Symbol> firstChildIterator = node.getWord().iterator();
@@ -66,7 +67,7 @@ public class Parser implements IParser {
       }  
     }
 
-    // 4. Create the final top level parse tree node and return
+    // 5. Create the final top level parse tree node and return
     ParseTreeNode result = new ParseTreeNode(cfg.getStartVariable(), firstChildren);
 
     return result;
