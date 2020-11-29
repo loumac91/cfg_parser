@@ -1,8 +1,9 @@
-import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,10 +31,14 @@ public class Parser implements IParser {
 
     List<Node> computedDerivations = getComputedDerivations(cfg, w);
 
-    if (computedDerivations == null) return null;
+    if (computedDerivations == null || computedDerivations.size() == 0) return null;
 
     // 1. Pick any given node in the list of all possible derivation paths
     Node node = computedDerivations.get(0);
+
+    if (w.length() == 1) {
+      return new ParseTreeNode(cfg.getStartVariable(), new ParseTreeNode(node.getExpansion().get(0)));
+    }
     
     // 2. Walk back up the tree from end to start, adding each node to a list
     // this represents the derivation path
@@ -53,8 +58,12 @@ public class Parser implements IParser {
       Symbol currentSymbol = firstChildIterator.next();
       Node nextChild = getLeftMostChild(currentSymbol, derivationNodes);
       derivationNodes.remove(nextChild); // Remove the node so that its not picked up again by above method
-      ParseTreeNode[] childrenOfFirstChild = recurseChildren(nextChild, derivationNodes);
-      firstChildren[i++] = new ParseTreeNode(currentSymbol, resolveChildArray(childrenOfFirstChild));
+      ParseTreeNode[] childrenOfFirstChild = resolveChildArray(recurseChildren(nextChild, derivationNodes));
+      if (childrenOfFirstChild[0] != null) {
+        firstChildren[i++] = new ParseTreeNode(currentSymbol, childrenOfFirstChild);
+      } else {
+        firstChildren[i++] = new ParseTreeNode(currentSymbol, new ParseTreeNode(nextChild.getExpansion().get(0)));
+      }  
     }
 
     // 4. Create the final top level parse tree node and return
@@ -106,6 +115,25 @@ public class Parser implements IParser {
 
     Symbol startVariable = cfg.getStartVariable();
     final Node root = new Node(new Word(startVariable), startingDepth);
+
+    if (n == 1) {
+      Word matchingWordFromStartVariable = expansionsMap
+        .get(startVariable)
+        .stream()
+        .filter(startingExpansion -> startingExpansion.isTerminal() && startingExpansion.equals(w))
+        .findFirst()
+        .orElse(null);
+
+      return matchingWordFromStartVariable.equals(null)
+        ? null
+        : new ArrayList<>(Arrays.asList(
+          new Node(root, matchingWordFromStartVariable, startingDepth + 1) {{
+            setParentSymbol(startVariable);
+            setReplacementIndex(0);
+            setExpansion(matchingWordFromStartVariable);
+          }}
+        ));
+    }
     
     try {
       List<Node> matchingNodes = expansionsMap

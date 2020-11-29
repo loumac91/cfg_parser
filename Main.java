@@ -7,7 +7,10 @@
  */
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.ArrayList;
 
 import computation.contextfreegrammar.*;
@@ -23,7 +26,9 @@ class Main {
 	// The parser we will test. 
 	// If you create a new class, add your constructor here instead e.g.
 	// private static IParser parser = new MyParser();
-	private static IParser parser = new Parser();
+  private static IParser parser = new Parser();
+  private static IParser cykParser = new CYKParser();
+  private final static boolean USE_CYK = false;
 
 	public static void customCode() {
 		// You can write your own custom code here and run it with option 3.
@@ -31,7 +36,6 @@ class Main {
 		// Any code here is totally informal and does not count towards your submission.
 
 		// Below is the kind of code you might want to write to test your parser
-
     ContextFreeGrammar cfg = MyGrammar.makeGrammar();
 
     // FALSE Simple cases
@@ -41,7 +45,7 @@ class Main {
       new Word(" ")
     )).forEach(c -> printCase(cfg, c, false));
 
-    // TRUE Simple cases
+    // // TRUE Simple cases
     new ArrayList<>(Arrays.asList(
       new Word("x"),
       new Word("1"),
@@ -52,54 +56,68 @@ class Main {
     )).forEach(c -> printCase(cfg, c, true));
 
     // TRUE complexer cases
-    new ArrayList<>(Arrays.asList(
-      new Word("x+x"),
-      new Word("x+x+x"),
-      new Word("1+0"),
-      new Word("x*1+-1*x+-1+x"),
-      new Word("-0*1"),
-      new Word("x*x+1+0+x*-x*0"),
-      new Word("-x*-0*-1"),
-      new Word("-0*1*0+1"),
-      new Word("-1+x+0*0*-1*0+-x"),
-      new Word("x+x+x+-1+1+1"),
-      new Word("1*-1+0*-x+0"),
-      new Word("x+x*x+-1+-x*0*0"),
-      new Word("x*x*1+1"),
-      new Word("x*1*1*0*-0+0+0"),
-      new Word("-1"),
-      new Word("0"),
-      new Word("1"),
-      new Word("0*-x*1"),
-      new Word("-x+0+-1*1+0"),
-      new Word("x*1+0*1+x"),
-      new Word("0*0*0*-0*1"),
-      new Word("-0+-x+x+0"),
-      new Word("0+1"),
-      new Word("1+1+x*0+x+x+-x+0")
-    )).forEach(c -> printCase(cfg, c, true));
+    concatTestCases(
+      Arrays.asList(
+        new Word("x+x"),
+        new Word("x+x+x"),
+        new Word("1+0"),
+        new Word("-0*1"),
+        new Word("0+1")
+      ),
+      Arrays.asList(
+        new Word("x*1+-1*x+-1+x"),
+        new Word("x*x+1+0+x*-x*0"),
+        new Word("-x*-0*-1"),
+        new Word("-0*1*0+1"),
+        new Word("-1+x+0*0*-1*0+-x"),
+        new Word("x+x+x+-1+1+1"),
+        new Word("1*-1+0*-x+0"),
+        new Word("x+x*x+-1+-x*0*0"),
+        new Word("x*x*1+1"),
+        new Word("x*1*1*0*-0+0+0"),
+        new Word("0*-x*1"),
+        new Word("-x+0+-1*1+0"),
+        new Word("x*1+0*1+x"),
+        new Word("0*0*0*-0*1"),
+        new Word("-0+-x+x+0"),
+        new Word("1+1+x*0+x+x+-x+0")
+      )      
+    ).forEach(c -> printCase(cfg, c, true));
 
     // FALSE complexer cases
-    new ArrayList<>(Arrays.asList(
-      new Word("01"),
-      new Word("*-*"),
-      new Word("1*0+--1+0*1"),
-      new Word("-0+00+1*1*-1+0"),
-      new Word("x+0+x*x*0*-01"),
-      new Word("x*1+x*-0*x*x+x*x11"),
-      new Word("1+-1-"),
-      new Word("0*0+0+-1+1x")
-    )).forEach(c -> printCase(cfg, c, false));
-	}
+    concatTestCases(
+      Arrays.asList(
+        new Word("01"),
+        new Word("*-*"),
+        new Word("1+-1-")
+      ),
+      Arrays.asList(
+        new Word("1*0+--1+0*1"),
+        new Word("-0+00+1*1*-1+0"),
+        new Word("x+0+x*x*0*-01"),
+        new Word("x*1+x*-0*x*x+x*x11"),
+        new Word("0*0+0+-1+1x")
+      )
+    ).forEach(c -> printCase(cfg, c, false));
+  }
+  
+  private static void printCase(ContextFreeGrammar cfg, Word testCase, Boolean expectedResult, IParser pParser) {
 
-  private static void printCase(ContextFreeGrammar cfg, Word testCase, Boolean expectedResult) {
-
-    Boolean result = parser.isInLanguage(cfg, testCase);
+    Boolean result = pParser.isInLanguage(cfg, testCase);
     assert(result.equals(expectedResult));
+    ParseTreeNode ptn = pParser.generateParseTree(cfg, testCase);
     System.out.println("CASE: " + testCase);
     System.out.println("RESULT: " + result);
-    System.out.println("TREE: " + parser.generateParseTree(cfg, testCase).toString());
+    System.out.println("TREE: \n" + ptn);
     System.out.println("*************************************");
+  }
+
+  private static void printCase(ContextFreeGrammar cfg, Word testCase, Boolean expectedResult) {
+    printCase(cfg, testCase, expectedResult, USE_CYK ? cykParser : parser);
+  }
+
+  private static List<Word> concatTestCases(List<Word> baseCases, List<Word> algo2Cases) {
+    return Stream.concat(baseCases.stream(), USE_CYK ? algo2Cases.stream() : Stream.empty()).collect(Collectors.toList());
   }
 
 	/* ******************************************************************************************************
