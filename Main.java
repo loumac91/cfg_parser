@@ -7,11 +7,11 @@
  */
 
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.ArrayList;
 
 import computation.contextfreegrammar.*;
 import computation.parser.*;
@@ -28,7 +28,7 @@ class Main {
 	// private static IParser parser = new MyParser();
   private static IParser parser = new Parser();
   private static IParser cykParser = new CYKParser();
-  private final static boolean USE_CYK = false;
+  private final static boolean USE_CYK = true;
 
 	public static void customCode() {
 		// You can write your own custom code here and run it with option 3.
@@ -37,6 +37,7 @@ class Main {
 
 		// Below is the kind of code you might want to write to test your parser
     ContextFreeGrammar cfg = MyGrammar.makeGrammar();
+    // ContextFreeGrammar cfg = MyGrammar.makeGrammar2();
 
     // FALSE Simple cases
     new ArrayList<>(Arrays.asList(
@@ -45,7 +46,7 @@ class Main {
       new Word(" ")
     )).forEach(c -> printCase(cfg, c, false));
 
-    // // TRUE Simple cases
+    // TRUE Simple cases
     new ArrayList<>(Arrays.asList(
       new Word("x"),
       new Word("1"),
