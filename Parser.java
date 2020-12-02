@@ -117,6 +117,7 @@ public class Parser implements IParser {
     Symbol startVariable = cfg.getStartVariable();
     final Node root = new Node(new Word(startVariable), startingDepth);
 
+    // If you can produce word from starting variable, return array with single node
     if (n == 1) {
       Word matchingWordFromStartVariable = expansionsMap
         .get(startVariable)
@@ -128,11 +129,11 @@ public class Parser implements IParser {
       return matchingWordFromStartVariable.equals(null)
         ? null
         : new ArrayList<>(Arrays.asList(
-          new Node(root, matchingWordFromStartVariable, startingDepth + 1) {{
-            setParentSymbol(startVariable);
-            setReplacementIndex(0);
-            setExpansion(matchingWordFromStartVariable);
-          }}
+            new Node(root, matchingWordFromStartVariable, startingDepth + 1) {{
+              setParentSymbol(startVariable);
+              setReplacementIndex(0);
+              setExpansion(matchingWordFromStartVariable);
+            }}
         ));
     }
     
@@ -140,24 +141,21 @@ public class Parser implements IParser {
       List<Node> matchingNodes = expansionsMap
         .get(startVariable)
         .stream()
-        .map(startingExpansion -> recurseNode(root, startingExpansion, startingDepth, derivationDepth))
-        .map(childDerivation -> recurseMatchingChildren(childDerivation, w, derivationDepth))
-        .flatMap(HashSet::stream)
-        .collect(Collectors.toList());
+        .map(startingExpansion -> recurseDerivations(root, startingExpansion, startingDepth, derivationDepth)) // Produce all possible derivations to 2n - 1 depth
+        .map(childDerivation -> recurseMatchingChildren(childDerivation, w, derivationDepth)) // Find children that match
+        .flatMap(HashSet::stream) // Flatten from map to single list of nodes
+        .collect(Collectors.toList()); // And collect as list
 
       return matchingNodes;
 
     } catch (OutOfMemoryError e) {
-      // On my computer, I would usually hit the ~14th iteration before this would occur
-      // The total number of derivations starts to explode after 10 or so, consequently
-      // out of memory exception is inevitable
       System.out.println("Out of Memory exception: " + e.getMessage());
     }
 
     return null;
   }
 
-  private Node recurseNode(Node parent, Word word, int depth, int maxDepth) {
+  private Node recurseDerivations(Node parent, Word word, int depth, int maxDepth) {
     Node node = new Node(parent, word, ++depth);
     if (depth == maxDepth || word.isTerminal()) {
       return node;
@@ -176,7 +174,7 @@ public class Parser implements IParser {
       for (Word expansion : currentExpansions) {
         Symbol parentSymbol = word.get(replaceIndex);
         Word replaced = word.replace(replaceIndex, expansion);
-        Node childNode = recurseNode(node, replaced, depth, maxDepth);
+        Node childNode = recurseDerivations(node, replaced, depth, maxDepth);
         childNode.setParentSymbol(parentSymbol);
         childNode.setReplacementIndex(replaceIndex);
         childNode.setExpansion(expansion);
@@ -236,6 +234,7 @@ public class Parser implements IParser {
 
     ParseTreeNode[] children = new ParseTreeNode[2];
     // Base condition is to recurse until no derivation nodes remain
+    // i.e. the parent is a terminal
     if (derivationNodes.size() == 0) return children;
     
     int i = 0;
