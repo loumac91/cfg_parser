@@ -33,7 +33,9 @@ public class CYKParser implements IParser {
 
     if (!isValid) return null;
 
-    return new ParseTreeNode(startingVariable, resolveChildArray(recurseChildren(startingVariable, startingCell)));
+    return w.length() == 1 
+      ? new ParseTreeNode(startingVariable, new ParseTreeNode((Terminal)w.get(0)))
+      : new ParseTreeNode(startingVariable, resolveChildArray(recurseChildren(startingVariable, startingCell)));
   } 
 
   private void setExpansionMap(ContextFreeGrammar cfg) {
