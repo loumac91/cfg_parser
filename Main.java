@@ -37,9 +37,8 @@ class Main {
 
 		// Below is the kind of code you might want to write to test your parser
     ContextFreeGrammar cfg = MyGrammar.makeGrammar();
-    // ContextFreeGrammar cfg = MyGrammar.makeGrammar2();
 
-    // FALSE Simple cases
+    // // FALSE Simple cases
     new ArrayList<>(Arrays.asList(
       Word.emptyWord,
       new Word(""),

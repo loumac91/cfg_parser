@@ -23,7 +23,6 @@ public class CYKParser implements IParser {
     if (!isValidInput(cfg, w)) return null;
 
     Cell[][] cykTable = computeCyk(cfg, w);
-
     final int n = w.length();
     Cell startingCell = cykTable[1][n];
     Variable startingVariable = cfg.getStartVariable();
@@ -33,8 +32,10 @@ public class CYKParser implements IParser {
 
     if (!isValid) return null;
 
-    return w.length() == 1 
+    return w.length() == 1 // Handle single length words
       ? new ParseTreeNode(startingVariable, new ParseTreeNode((Terminal)w.get(0)))
+      // This just involves walking down the left and right children of a node in the tree until we reach the bottom (terminals of the given word w)
+      // and pass the children (constructed as parsetreenodes) back up the root parent node (start variable) 
       : new ParseTreeNode(startingVariable, resolveChildArray(recurseChildren(startingVariable, startingCell)));
   } 
 
@@ -63,17 +64,20 @@ public class CYKParser implements IParser {
   private Cell[][] computeCyk(ContextFreeGrammar cfg, Word w) {
     
     // Algorithm 2
-    
-    final int n = w.length();
-
     // max i value is 2n + 1
     // max l value is n
     // max j value is i + j - 1 = 3n
+    // max k value is k = j - 1= 3n - 1
 
-    final int rows = 2 * n + 2; // SHOULD BE 3n?
-    final int columns = 3 * n;
+    // 1. Create 2d array to insert variables into
+    final int n = w.length();
+    final int maxDimension = 3 * n;
+    final int rows = maxDimension;
+    final int columns = maxDimension;
     Cell[][] table = createCellTable(rows, columns);        
 
+    // 2. Process single length rules and add them to table where they produce
+    // a substring at a given index of the word
     List<Rule> oneLengthRules = cfg
       .getRules()
       .stream()
@@ -92,6 +96,7 @@ public class CYKParser implements IParser {
       }
     }
 
+    // 3. Process double length rules
     List<Rule> twoLengthRules = cfg
       .getRules()
       .stream()
@@ -113,12 +118,16 @@ public class CYKParser implements IParser {
                 ? new Word(rule.getVariable())
                 : concatSymbolToWord(rule.getVariable(), table[i][j].cellWord));
               
+              // 4. Store state required for processing parse tree
+              // Store a reference of the left and right child and set their denoted variable via b and c
+              // Also set the substringAtIndex on the children, this denotes what substring in the word
+              // they resolve to
               table[i][j].leftCell = table[i][k];
               table[i][j].rightCell = table[k + 1][j];
               table[i][j].left = b;
               table[i][j].right = c;
-              table[i][j].leftCell.resolve = w.subword(i - 1, k);
-              table[i][j].rightCell.resolve = w.subword(i, j);
+              table[i][j].leftCell.substringAtIndex = w.subword(i - 1, k);
+              table[i][j].rightCell.substringAtIndex = w.subword(i, j);
             }
           }
         }
@@ -153,7 +162,8 @@ public class CYKParser implements IParser {
     Boolean rightNull = cykCell.right == null;
 
     if (leftNull && rightNull) {
-      children[0] = new ParseTreeNode((Terminal)cykCell.resolve.get(0));
+      // Base recursion case, we know this is a terminal, therefore safe to cast
+      children[0] = new ParseTreeNode((Terminal)cykCell.substringAtIndex.get(0));
       return children;
     }
 
@@ -175,6 +185,6 @@ public class CYKParser implements IParser {
     public Cell rightCell;
     public Symbol left;
     public Symbol right;
-    public Word resolve;
+    public Word substringAtIndex;
   }
 }
