@@ -39,26 +39,66 @@ class Main {
     ContextFreeGrammar cfg = MyGrammar.makeGrammar();
 
     // // FALSE Simple cases
-    new ArrayList<>(Arrays.asList(
-      Word.emptyWord,
-      new Word(""),
-      new Word(" ")
-    )).forEach(c -> printCase(cfg, c, false));
+    // new ArrayList<>(Arrays.asList(
+    //   Word.emptyWord,
+    //   new Word(""),
+    //   new Word(" ")
+    // )).forEach(c -> printCase(cfg, c, false));
 
-    // TRUE Simple cases
-    new ArrayList<>(Arrays.asList(
-      new Word("x"),
-      new Word("1"),
-      new Word("0"),
-      new Word("-1"),
-      new Word("-x"),
-      new Word("-0")
-    )).forEach(c -> printCase(cfg, c, true));
+    // // TRUE Simple cases
+    // new ArrayList<>(Arrays.asList(
+    //   new Word("x"),
+    //   new Word("1"),
+    //   new Word("0"),
+    //   new Word("-1"),
+    //   new Word("-x"),
+    //   new Word("-0")
+    // )).forEach(c -> printCase(cfg, c, true));
+
+    Arrays.asList(
+      new Word("1+0")
+    ).forEach(e -> {
+      System.out.println("Case: " + e);
+      System.out.println("Expected result: TRUE");
+      System.out.println("Result isInLanguage: " + parser.isInLanguage(cfg, e));
+      System.out.println("Tree: \n" + parser.generateParseTree(cfg, e));
+    });
+
+    Arrays.asList(
+      new Word("1+0"),
+      new Word("01"),
+      new Word("*-*")
+    ).forEach(e -> {
+      System.out.println("Case: " + e);
+      System.out.println("Expected result: FALSE");
+      System.out.println("Result isInLanguage: " + parser.isInLanguage(cfg, e));
+      System.out.println("Tree: \n" + parser.generateParseTree(cfg, e));
+    });
+
+    Arrays.asList(
+      new Word("1*-0*-1+0*-1"),
+      new Word("0+-1*-0+1*1")
+    ).forEach(e -> {
+      System.out.println("Case: " + e);
+      System.out.println("Expected result: TRUE");
+      System.out.println("Result isInLanguage: " + cykParser.isInLanguage(cfg, e));
+      System.out.println("Tree: \n" + cykParser.generateParseTree(cfg, e));
+    });
+
+    Arrays.asList(
+      new Word("1*0+--1+0*1"),
+      new Word("1*0+0-1+1*0+-0")
+    ).forEach(e -> {
+      System.out.println("Case: " + e);
+      System.out.println("Expected result: FALSE");
+      System.out.println("Result isInLanguage: " + cykParser.isInLanguage(cfg, e));
+      System.out.println("Tree: \n" + cykParser.generateParseTree(cfg, e));
+    });
 
     // TRUE complexer cases
     concatTestCases(
       Arrays.asList(
-        new Word("x+x"),
+        // new Word("x+x"),
         new Word("x+x+x"),
         new Word("1+0"),
         new Word("-0*1"),
