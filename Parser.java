@@ -29,6 +29,8 @@ public class Parser implements IParser {
 
     if (!isValidInput(cfg, w)) return null;
 
+    if (w.equals(Word.emptyWord)) return ParseTreeNode.emptyParseTree(cfg.getStartVariable());
+
     List<Node> computedDerivations = getComputedDerivations(cfg, w);
 
     if (computedDerivations == null || computedDerivations.size() == 0) return null;

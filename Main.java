@@ -65,7 +65,6 @@ class Main {
     });
 
     Arrays.asList(
-      new Word("1+0"),
       new Word("01"),
       new Word("*-*")
     ).forEach(e -> {
@@ -95,50 +94,50 @@ class Main {
       System.out.println("Tree: \n" + cykParser.generateParseTree(cfg, e));
     });
 
-    // TRUE complexer cases
-    concatTestCases(
-      Arrays.asList(
-        // new Word("x+x"),
-        new Word("x+x+x"),
-        new Word("1+0"),
-        new Word("-0*1"),
-        new Word("0+1")
-      ),
-      Arrays.asList(
-        new Word("x*1+-1*x+-1+x"),
-        new Word("x*x+1+0+x*-x*0"),
-        new Word("-x*-0*-1"),
-        new Word("-0*1*0+1"),
-        new Word("-1+x+0*0*-1*0+-x"),
-        new Word("x+x+x+-1+1+1"),
-        new Word("1*-1+0*-x+0"),
-        new Word("x+x*x+-1+-x*0*0"),
-        new Word("x*x*1+1"),
-        new Word("x*1*1*0*-0+0+0"),
-        new Word("0*-x*1"),
-        new Word("-x+0+-1*1+0"),
-        new Word("x*1+0*1+x"),
-        new Word("0*0*0*-0*1"),
-        new Word("-0+-x+x+0"),
-        new Word("1+1+x*0+x+x+-x+0")
-      )      
-    ).forEach(c -> printCase(cfg, c, true));
+    // // TRUE complexer cases
+    // concatTestCases(
+    //   Arrays.asList(
+    //     // new Word("x+x"),
+    //     new Word("x+x+x"),
+    //     new Word("1+0"),
+    //     new Word("-0*1"),
+    //     new Word("0+1")
+    //   ),
+    //   Arrays.asList(
+    //     new Word("x*1+-1*x+-1+x"),
+    //     new Word("x*x+1+0+x*-x*0"),
+    //     new Word("-x*-0*-1"),
+    //     new Word("-0*1*0+1"),
+    //     new Word("-1+x+0*0*-1*0+-x"),
+    //     new Word("x+x+x+-1+1+1"),
+    //     new Word("1*-1+0*-x+0"),
+    //     new Word("x+x*x+-1+-x*0*0"),
+    //     new Word("x*x*1+1"),
+    //     new Word("x*1*1*0*-0+0+0"),
+    //     new Word("0*-x*1"),
+    //     new Word("-x+0+-1*1+0"),
+    //     new Word("x*1+0*1+x"),
+    //     new Word("0*0*0*-0*1"),
+    //     new Word("-0+-x+x+0"),
+    //     new Word("1+1+x*0+x+x+-x+0")
+    //   )      
+    // ).forEach(c -> printCase(cfg, c, true));
 
-    // FALSE complexer cases
-    concatTestCases(
-      Arrays.asList(
-        new Word("01"),
-        new Word("*-*"),
-        new Word("1+-1-")
-      ),
-      Arrays.asList(
-        new Word("1*0+--1+0*1"),
-        new Word("-0+00+1*1*-1+0"),
-        new Word("x+0+x*x*0*-01"),
-        new Word("x*1+x*-0*x*x+x*x11"),
-        new Word("0*0+0+-1+1x")
-      )
-    ).forEach(c -> printCase(cfg, c, false));
+    // // FALSE complexer cases
+    // concatTestCases(
+    //   Arrays.asList(
+    //     new Word("01"),
+    //     new Word("*-*"),
+    //     new Word("1+-1-")
+    //   ),
+    //   Arrays.asList(
+    //     new Word("1*0+--1+0*1"),
+    //     new Word("-0+00+1*1*-1+0"),
+    //     new Word("x+0+x*x*0*-01"),
+    //     new Word("x*1+x*-0*x*x+x*x11"),
+    //     new Word("0*0+0+-1+1x")
+    //   )
+    // ).forEach(c -> printCase(cfg, c, false));
   }
   
   private static void printCase(ContextFreeGrammar cfg, Word testCase, Boolean expectedResult, IParser pParser) {

@@ -22,6 +22,8 @@ public class CYKParser implements IParser {
 
     if (!isValidInput(cfg, w)) return null;
 
+    if (w.equals(Word.emptyWord)) return ParseTreeNode.emptyParseTree(cfg.getStartVariable());
+
     Cell[][] cykTable = computeCyk(cfg, w);
     final int n = w.length();
     Cell startingCell = cykTable[1][n];
@@ -33,9 +35,7 @@ public class CYKParser implements IParser {
     if (!isValid) return null;
 
     return w.length() == 1 // Handle single length words
-      ? w.equals(Word.emptyWord) 
-        ? ParseTreeNode.emptyParseTree(startingVariable)
-        : new ParseTreeNode(startingVariable, new ParseTreeNode((Terminal)w.get(0)))
+      ? new ParseTreeNode(startingVariable, new ParseTreeNode((Terminal)w.get(0)))
       // This just involves walking down the left and right children of a node in the tree until we reach the bottom (terminals of the given word w)
       // and pass the children (constructed as parsetreenodes) back up the root parent node (start variable) 
       : new ParseTreeNode(startingVariable, resolveChildArray(recurseChildren(startingVariable, startingCell)));
