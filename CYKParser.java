@@ -38,7 +38,7 @@ public class CYKParser implements IParser {
       ? new ParseTreeNode(startingVariable, new ParseTreeNode((Terminal)w.get(0)))
       // This just involves walking down the left and right children of a node in the tree until we reach the bottom (terminals of the given word w)
       // and pass the children (constructed as parsetreenodes) back up the root parent node (start variable) 
-      : new ParseTreeNode(startingVariable, resolveChildArray(recurseChildren(startingVariable, startingCell)));
+      : new ParseTreeNode(startingVariable, resolveChildArray(recurseChildren(startingVariable, startingCell, w)));
   } 
 
   private void setExpansionMap(ContextFreeGrammar cfg) {
@@ -122,14 +122,16 @@ public class CYKParser implements IParser {
               
               // 4. Store state required for processing parse tree
               // Store a reference of the left and right child and set their denoted variable via b and c
-              // Also set the substringAtIndex on the children, this denotes what substring in the word
-              // they resolve to
+              // Also set the resolvingIndex of the entire word within the left and right cells
+              // this means that we can find the terminal for the parse tree node at this index in the param word
+              // when we are resolving the root parse tree nodes children
+
               table[i][j].leftCell = table[i][k];
               table[i][j].rightCell = table[k + 1][j];
               table[i][j].left = b;
               table[i][j].right = c;
-              table[i][j].leftCell.substringAtIndex = w.subword(i - 1, k);
-              table[i][j].rightCell.substringAtIndex = w.subword(i, j);
+              table[i][j].leftCell.resolvingIndex = i;
+              table[i][j].rightCell.resolvingIndex = j;
             }
           }
         }
@@ -156,7 +158,7 @@ public class CYKParser implements IParser {
     return childArray[1] == null ? new ParseTreeNode[] { childArray[0] } : childArray;
   }
   
-  private ParseTreeNode[] recurseChildren(Symbol parentSymbol, Cell cykCell) {
+  private ParseTreeNode[] recurseChildren(Symbol parentSymbol, Cell cykCell, Word w) {
 
     ParseTreeNode[] children = new ParseTreeNode[2];
 
@@ -165,16 +167,17 @@ public class CYKParser implements IParser {
 
     if (leftNull && rightNull) {
       // Base recursion case, we know this is a terminal, therefore safe to cast
-      children[0] = new ParseTreeNode((Terminal)cykCell.substringAtIndex.get(0));
+      int index = cykCell.resolvingIndex;
+      children[0] = new ParseTreeNode((Terminal)w.subword(index - 1, index).get(0));
       return children;
     }
 
     if (!leftNull) {
-      children[0] = new ParseTreeNode(cykCell.left, resolveChildArray(recurseChildren(cykCell.left, cykCell.leftCell)));
+      children[0] = new ParseTreeNode(cykCell.left, resolveChildArray(recurseChildren(cykCell.left, cykCell.leftCell, w)));
     }
 
     if (!rightNull) {
-      children[1] = new ParseTreeNode(cykCell.right, resolveChildArray(recurseChildren(cykCell.right, cykCell.rightCell)));
+      children[1] = new ParseTreeNode(cykCell.right, resolveChildArray(recurseChildren(cykCell.right, cykCell.rightCell, w)));
     }
 
     return children;
@@ -187,6 +190,6 @@ public class CYKParser implements IParser {
     public Cell rightCell;
     public Symbol left;
     public Symbol right;
-    public Word substringAtIndex;
+    public int resolvingIndex;
   }
 }

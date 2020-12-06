@@ -19,6 +19,7 @@ import computation.parsetree.*;
 
 class Main {
 
+
 	// Change this to true to skip straight to the tests
 	// - useful if you understand the code and are just testing your parser.
 	private final static boolean SKIP_TO_TESTS = false;
@@ -36,24 +37,8 @@ class Main {
 		// Any code here is totally informal and does not count towards your submission.
 
 		// Below is the kind of code you might want to write to test your parser
-    ContextFreeGrammar cfg = MyGrammar.makeGrammar();
-
-    // // FALSE Simple cases
-    // new ArrayList<>(Arrays.asList(
-    //   Word.emptyWord,
-    //   new Word(""),
-    //   new Word(" ")
-    // )).forEach(c -> printCase(cfg, c, false));
-
-    // // TRUE Simple cases
-    // new ArrayList<>(Arrays.asList(
-    //   new Word("x"),
-    //   new Word("1"),
-    //   new Word("0"),
-    //   new Word("-1"),
-    //   new Word("-x"),
-    //   new Word("-0")
-    // )).forEach(c -> printCase(cfg, c, true));
+    // ContextFreeGrammar cfg = MyGrammar.makeGrammar();
+    ContextFreeGrammar cfg = MyGrammar.makeGrammar2();
 
     Arrays.asList(
       new Word("1+0")
@@ -93,6 +78,25 @@ class Main {
       System.out.println("Result isInLanguage: " + cykParser.isInLanguage(cfg, e));
       System.out.println("Tree: \n" + cykParser.generateParseTree(cfg, e));
     });
+
+// ***************************
+
+    // // FALSE Simple cases
+    // new ArrayList<>(Arrays.asList(
+    //   Word.emptyWord,
+    //   new Word(""),
+    //   new Word(" ")
+    // )).forEach(c -> printCase(cfg, c, false));
+
+    // // TRUE Simple cases
+    // new ArrayList<>(Arrays.asList(
+    //   new Word("x"),
+    //   new Word("1"),
+    //   new Word("0"),
+    //   new Word("-1"),
+    //   new Word("-x"),
+    //   new Word("-0")
+    // )).forEach(c -> printCase(cfg, c, true));
 
     // // TRUE complexer cases
     // concatTestCases(
@@ -339,7 +343,7 @@ class Main {
 			pause();
 		}
 
-		System.out.println("Testing parser with " + parser.getClass());
+		System.out.println("Testing parser with " + cykParser.getClass());
 
 		int success = 0, total = 0;
 
@@ -350,7 +354,7 @@ class Main {
 		System.out.println("Expected result: true\nTest result:");
 		total++;
 
-		if(parser.isInLanguage(cfg, test)){
+		if(cykParser.isInLanguage(cfg, test)){
 			System.out.println("\tPASS -- parser returned true");
 			success++;
 		} else{
@@ -365,7 +369,7 @@ class Main {
 		System.out.println("Expected result: false\nTest result:");
 		total++;
 
-		if(!parser.isInLanguage(cfg, test)){
+		if(!cykParser.isInLanguage(cfg, test)){
 			System.out.println("\tPASS -- parser returned false");
 			success++;
 		} else{
@@ -431,7 +435,7 @@ class Main {
       );
 		tree.print();
 
-		ParseTreeNode result = parser.generateParseTree(cfg, test);
+		ParseTreeNode result = cykParser.generateParseTree(cfg, test);
 		if(result == null) {
 			System.out.println("Actual result: null");
 		} else {
